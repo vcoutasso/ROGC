@@ -1,4 +1,5 @@
 import numpy as np
+import spams
 
 class ROGC:
     """
@@ -32,7 +33,7 @@ class ROGC:
 
     References
     ----------
-    .. [1] Wang, F., Zhu, L., Liang, C., Li, J., Chang, X., & Lu, K. (2020). Robust optimal graph clustering. Neurocomputing, 378, 153-165.
+        [1] Wang, F., Zhu, L., Liang, C., Li, J., Chang, X., & Lu, K. (2020). Robust optimal graph clustering. Neurocomputing, 378, 153-165.
     """
 
     def __init__(self, alpha, beta, gamma, m, c):
@@ -46,9 +47,14 @@ class ROGC:
     def _initialize(self, n_samples):
         """
         Initializes W by the optimal solution to Eq. (4) in [1]
+
+        Parameters
+        ----------
+        n_samples : int
+            Number of samples in the dataset
         """
         # TODO: Implement solution to equation 4
-        self.W_ = np.ones((n_samples, n_samples))
+        self.W_ = np.empty((n_samples, n_samples))
 
 
     def fit(self, X, B):
@@ -64,14 +70,19 @@ class ROGC:
         Fit the model to X with dictionary matrix B and predict labels for X.
         """
         self.B_ = B
-
         self.converged_ = False
 
         self._initialize(X.shape[0])
 
+
         while not self.converged_:
 
-            # Solve equation 1
+            # Solve equation 1 for S
+            self.S_ = spams.lasso(np.asfortranarray(X), np.asfortranarray(self.B_), mode=2, lambda1=self.c, lambda2=0)
+
+            # Reconstruction error
+            X_hat = self.B_ @ self.S_
+            print(np.mean(np.sum((X_hat - X) ** 2, axis=1) / np.sum(X ** 2, axis=1)))
 
             # Solve equation 18
 
