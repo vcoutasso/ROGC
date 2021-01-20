@@ -136,7 +136,7 @@ class ROGC(BaseEstimator, ClusterMixin):
         if not B is None:
             B = check_array(B).T
             # spams.lasso only accepts floating point arrays, so we need to convert them if we get integers
-            if issubclass(B.type, np.integer):
+            if issubclass(B.dtype.type, np.integer):
                 B = B.astype(np.float)
 
         # spams.lasso only accepts floating point arrays, so we need to convert them if we get integers
