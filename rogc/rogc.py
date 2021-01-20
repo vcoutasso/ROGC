@@ -2,13 +2,13 @@
 This module implements the Robust Optimal Graph Clustering algorithm proposed in https://doi.org/10.1016/j.neucom.2019.07.102
 """
 
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.utils import check_array
 import sklearn
 import numpy as np
 import spams
 
-class ROGC(BaseEstimator):
+class ROGC(BaseEstimator, ClusterMixin):
     """
     Robust Optimal Graph Clustering Algorithm[1].
 
