@@ -23,12 +23,8 @@ B = DictionaryLearning(n_components=3, n_jobs=-1).fit(X).components_.T
 
 X = X.T
 
-alpha = 1
-beta = 0.5
-gamma = 1
-m = B.shape[1]
 c = np.unique(y).shape[0]
 
-model = ROGC(B, alpha, beta, gamma, m, c)
+model = ROGC(alpha=1, beta=0.5, gamma=1, n_clusters=c)
 
-preds = model.fit_predict(X)
+preds = model.fit_predict(X, B=B)
