@@ -19,9 +19,7 @@ X, y = datasets.make_circles(n_samples=n_samples, factor=.5, noise=.05)
 #X, y = datasets.make_blobs(150, centers=2, n_features=5)
 
 # Learn dictionary B from data X
-B = DictionaryLearning(n_components=3, n_jobs=-1).fit(X).components_.T
-
-X = X.T
+B = DictionaryLearning(n_components=3, n_jobs=-1).fit(X).components_
 
 c = np.unique(y).shape[0]
 

@@ -25,13 +25,13 @@ class ROGC(BaseEstimator, ClusterMixin):
 
     Attributes
     ----------
-    W_ : array-like of shape (n, n)
+    W_ : array-like of shape (n_samples, n_samples)
         Weight matrix (similarity matrix)
-    S_ : array-like of shape (m, n)
+    S_ : array-like of shape (n_basis_vectors, n_samples)
         Coefficient matrix
-    B_ : array-like of shape (d, m)
+    B_ : array-like of shape (n_features, n_basis_vectors)
         Basis matrix
-    F_ : array-like of shape (n, c)
+    F_ : array-like of shape (n_samples, n_clusters)
         Cluster indicator matrix
     converged_ : bool
         True if convergence was reached in `fit()`, False otherwise
@@ -54,6 +54,8 @@ class ROGC(BaseEstimator, ClusterMixin):
 
         Parameters
         ----------
+        X : array-like of shape (n_features, n_samples)
+            Training data
         n_samples : int
             Number of samples in the dataset
         """
@@ -69,6 +71,9 @@ class ROGC(BaseEstimator, ClusterMixin):
 
 
     def _check_params(self):
+        """
+        Check for invalid parameters
+        """
         # alpha regularization parameter
         if self.alpha < 0:
             raise ValueError(
@@ -100,14 +105,14 @@ class ROGC(BaseEstimator, ClusterMixin):
 
         Parameters
         ----------
-        X : array-like of shape (d, n)
+        X : array-like of shape (n_samples, n_features)
             Training data
-        y : ignored
+        y : Ignored
             Not used, here to comply with Scikit-Learn's API convention
-        B : array-like of shape (d, m)
+        B : array-like of shape (n_basis_vectors, n_features), default=None
             Initial basis matrix (dictionary of atoms)
         """
-        self.fit_predict(X, None, B)
+        self.fit_predict(X, B=B)
         return self
 
 
@@ -117,19 +122,26 @@ class ROGC(BaseEstimator, ClusterMixin):
 
         Parameters
         ----------
-        X : array-like of shape (d, n)
+        X : array-like of shape (n_samples, n_features)
             Training data
-        B : array-like of shape (d, m)
-            Initial basis matrix (dictionary of atoms)
-        y : ignored
+        y : Ignored
             Not used, here to comply with Scikit-Learn's API convention
+        B : array-like of shape (n_basis_vectors, n_features), default=None
+            Initial basis matrix (dictionary of atoms)
         """
         self._check_params()
 
-        X = check_array(X)
-
+        # Check arrays and transpose them to match the shape used in the paper
+        X = check_array(X).T
         if not B is None:
-            B = check_array(B)
+            B = check_array(B).T
+            # spams.lasso only accepts floating point arrays, so we need to convert them if we get integers
+            if issubclass(B.type, np.integer):
+                B = B.astype(np.float)
+
+        # spams.lasso only accepts floating point arrays, so we need to convert them if we get integers
+        if issubclass(X.dtype.type, np.integer):
+            X = X.astype(np.float)
 
         # Initialize W (and B if not provided)
         self._initialize(X, B)
